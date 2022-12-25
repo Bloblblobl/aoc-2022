@@ -76,3 +76,50 @@ for x in range(w):
             visible_count += 1
 
 print(f'DAY 8 PART 1:\n{visible_count}\n')
+
+##########
+# PART 2 #
+##########
+top_scenic_score = 0
+for x in range(w):
+    for y in range(h):
+        v = lines[y][x]
+
+        # scan top
+        top_score = 0
+        for yy in range(1, y + 1):
+            tv = lines[y - yy][x]
+            top_score += 1
+            if tv >= v:
+                break
+
+        # scan right
+        right_score = 0
+        for xx in range(1, w - x):
+            rv = lines[y][x + xx]
+            right_score += 1
+            if rv >= v:
+                break
+
+        # scan bottom
+        bottom_score = 0
+        for yy in range(1, h - y):
+            bv = lines[y + yy][x]
+            bottom_score += 1
+            if bv >= v:
+                break
+
+        # scan left
+        left_score = 0
+        for xx in range(1, x + 1):
+            lv = lines[y][x - xx]
+            left_score += 1
+            if lv >= v:
+                break
+        
+        scenic_score = top_score * right_score * bottom_score * left_score
+        if scenic_score > top_scenic_score:
+            top_scenic_score = scenic_score
+
+print(f'DAY 8 PART 2:\n{top_scenic_score}\n')
+    
