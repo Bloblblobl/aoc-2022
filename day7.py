@@ -54,8 +54,23 @@ def traverse_count(current_dir=None, path=None):
     dir_sizes.append(dir_size)
     return dir_size
 
-traverse_count()
+total_size = traverse_count()
 
 total_below_limit = sum([size for size in dir_sizes if size <= 100000])
 
 print(f'DAY 7 PART 1:\n{total_below_limit}\n')
+
+##########
+# PART 2 #
+##########
+total_disk_space = 70000000
+unused_space_needed = 30000000
+unused_space = total_disk_space - total_size
+space_to_free = unused_space_needed - unused_space
+min_dir_size = None
+
+for size in dir_sizes:
+    if size >= space_to_free and (min_dir_size is None or size < min_dir_size):
+        min_dir_size = size
+
+print(f'DAY 7 PART 2:\n{min_dir_size}\n')
