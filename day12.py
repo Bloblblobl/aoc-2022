@@ -55,3 +55,42 @@ while(len(q)):
             visited[direction] = next_steps
 
 print(f'DAY 12 PART 1:\n{visited[end_pos]}\n')
+
+##########
+# PART 2 #
+##########
+other_start_pos = []
+for y, line in enumerate(grid):
+    for x, square in enumerate(line):
+        if square == 'a':
+            other_start_pos.append((x, y))
+
+min_visit = visited[end_pos]
+for start_pos in other_start_pos:
+    visited = {}
+    q = [(0, start_pos)]
+    while(len(q)):
+        steps, pos = q.pop(0)
+        x, y = pos
+        next_steps = steps + 1
+        e = elevation(pos)
+
+        right = (x + 1, y)
+        left = (x - 1, y)
+        down = (x, y + 1)
+        up = (x, y - 1)
+
+        for direction in [right, left, down, up]:
+            if not can_step(pos, direction):
+                continue
+
+            if direction not in visited or next_steps < visited[direction]:
+                q.append((next_steps, direction))
+                visited[direction] = next_steps
+    
+    if end_pos in visited:
+        steps = visited[end_pos]
+        if steps < min_visit:
+            min_visit = steps
+
+print(f'DAY 12 PART 2:\n{min_visit}\n')
