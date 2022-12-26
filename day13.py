@@ -49,3 +49,28 @@ for i in range (0, len(lines), 2):
         ordered_sum += pair_index
 
 print(f'DAY 13 PART 1:\n{ordered_sum}\n')
+
+##########
+# PART 2 #
+##########
+from functools import cmp_to_key
+
+def comparator(left, right):
+    result = in_order(left, right)
+    if result == True:
+        return -1
+    elif result is None:
+        return 0
+    else:
+        return 1
+
+all_packets = [eval(l) for l in lines]
+all_packets.extend([[[2]], [[6]]])
+
+decoder_key = 1
+sorted_packets = sorted(all_packets, key=cmp_to_key(comparator))
+for i, p in enumerate(sorted_packets):
+    if p == [[2]] or p == [[6]]:
+        decoder_key *= i + 1
+
+print(f'DAY 13 PART 2:\n{decoder_key}\n')
