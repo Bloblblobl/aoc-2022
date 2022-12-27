@@ -28,18 +28,24 @@ source = (unadjusted_source[0] - min_x, unadjusted_source[1] - min_y)
 max_x -= min_x
 max_y -= min_y
 min_x, min_y = 0, 0
-grid = [['.' for _ in range(max_x + 1)] for _ in range(max_y + 1)]
-grid[source[1]][source[0]] = '+'
 
-for path in adjusted_paths:
-    for i in range(1, len(path)):
-        x1, y1 = path[i - 1]
-        x2, y2 = path[i]
-        small_x, small_y = min(x1, x2), min(y1, y2)
-        big_x, big_y = max(x1, x2), max(y1, y2)
-        for x in range(small_x, big_x + 1):
-            for y in range(small_y, big_y + 1):
-                grid[y][x] = '#'
+def create_grid():
+    grid = [['.' for _ in range(max_x + 1)] for _ in range(max_y + 1)]
+    grid[source[1]][source[0]] = '+'
+
+    for path in adjusted_paths:
+        for i in range(1, len(path)):
+            x1, y1 = path[i - 1]
+            x2, y2 = path[i]
+            small_x, small_y = min(x1, x2), min(y1, y2)
+            big_x, big_y = max(x1, x2), max(y1, y2)
+            for x in range(small_x, big_x + 1):
+                for y in range(small_y, big_y + 1):
+                    grid[y][x] = '#'
+    
+    return grid
+
+grid = create_grid()
 
 def print_grid(pos=None):
     px, py = -1, -1
@@ -104,5 +110,81 @@ while not reached_abyss:
     if not reached_abyss:
         result += add_sand(pos)
 
-print_grid()
 print(f'DAY 14 PART 1:\n{result}\n') 
+
+##########
+# PART 2 #
+##########
+def add_floor(grid):
+    global max_y
+    w = len(grid[0])
+    grid.append(['.' for _ in range(max_x + 1)])
+    grid.append(['#' for _ in range(max_x + 1)])
+    max_y += 1
+    return grid
+
+grid = create_grid()
+grid = add_floor(grid)
+
+def add_side(pos, side):
+    global source
+    global max_x
+    for i, row in enumerate(grid):
+        gval = '#' if i == len(grid) - 1 else '.'
+        if side == 'left':
+            row.insert(0, gval)
+        else:
+            row.append(gval)
+    
+    if side == 'left':
+        pos = (pos[0] + 1, pos[1])
+        source = (source[0] + 1, source[1])
+    max_x += 1
+    return pos
+
+def is_blocked_expand(pos):
+    px, py = pos
+    if px < min_x:
+        pos = add_side(pos, 'left')
+        px, py = pos
+    elif px > max_x:
+        pos = add_side(pos, 'right')
+        px, py = pos
+
+    gval = grid[py][px]
+    return pos, gval == '#' or gval == 'O'
+
+def get_next_pos_expand(pos):
+    px, py = pos
+    if py == max_y:
+        return None
+
+    down_pos = (px, py + 1)
+    left_pos = (px - 1, py + 1)
+    right_pos = (px + 1, py + 1)
+
+    down_pos, is_blocked_down = is_blocked_expand(down_pos)
+    if not is_blocked_down:
+        return down_pos
+    
+    left_pos, is_blocked_left = is_blocked_expand(left_pos)
+    if not is_blocked_left:
+        return left_pos
+    
+    right_pos, is_blocked_right = is_blocked_expand(right_pos)
+    if not is_blocked_right:
+        return right_pos
+    
+    return None
+
+result = 0
+plugged_source = False
+while not plugged_source:
+    pos = source
+    while (next_pos := get_next_pos_expand(pos)) is not None:
+        pos = next_pos
+    plugged_source = pos == source
+
+    result += add_sand(pos)
+
+print(f'DAY 14 PART 2:\n{result}\n') 
