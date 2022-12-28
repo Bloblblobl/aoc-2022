@@ -10,6 +10,7 @@ target_y = 2000000
 sensors = set()
 beacons = set()
 empty_spaces = set()
+sensor_ranges = []
 for line in lines:
     sensor_string, beacon_string = line.split(': ')
     _, sensor_pos_string = sensor_string.split('x=')
@@ -26,8 +27,10 @@ for line in lines:
     sensors.add(sensor_pos)
     beacons.add(beacon_pos)
 
+
     sensor_range = abs(sensor_x - beacon_x) + abs(sensor_y - beacon_y)
     target_distance = abs(sensor_y - target_y)
+    sensor_ranges.append((sensor_pos, sensor_range))
     if target_distance > sensor_range:
         continue
 
@@ -41,4 +44,50 @@ for line in lines:
                 empty_spaces.add(pos)
 
 result = len(empty_spaces)
-print(f'DAY 15 PART 1:\n{result}\n') 
+print(f'DAY 15 PART 1:\n{result}\n')
+
+##########
+# PART 2 #
+##########
+min_p = 0
+max_p = 4000000
+
+target_beacon = None
+for i, (pos, r) in enumerate(sensor_ranges):
+    sx, sy = pos
+    bordering_points = set()
+    for dy in range(r + 2):
+        dx = r - dy + 1
+        points = [
+            (sx + dx, sy + dy),
+            (sx + dx, sy - dy),
+            (sx - dx, sy + dy),
+            (sx - dx, sy - dy),
+        ]
+        for p in points:
+            px, py = p
+            if px < min_p or px > max_p or py < min_p or py > max_p:
+                continue
+            bordering_points.add(p)
+
+    for border_point in bordering_points:
+        bx, by = border_point
+        out_of_reach = True
+        for other_pos, other_range in sensor_ranges:
+            if pos == other_pos or not out_of_reach:
+                continue
+            ox, oy = other_pos
+            distance = abs(ox - bx) + abs(oy - by)
+            if distance <= other_range:
+                out_of_reach = False
+        
+        if out_of_reach:
+            target_beacon = border_point
+            break
+    
+    if target_beacon is not None:
+        break
+
+tx, ty = target_beacon
+result = tx * max_p + ty
+print(f'DAY 15 PART 2:\n{result}\n')
